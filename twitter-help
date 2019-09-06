@@ -1,0 +1,28 @@
+library(tidyverse)
+library(lubridate)
+
+#I am trying to get a count of active clients in each program for each months
+#df is toy data
+df <- tibble(client = c(1:10),
+             program = c("ffc", "tfc", "tfc", "tfc", "ffc", "ffc", "ffc", "ffc", "ffc", "tfc"),
+             start_date = c("2019-01-15", "2019-02-15", "2019-03-15", "2019-01-15", "2019-02-15", "2019-03-15",
+                            "2019-01-15", "2019-02-15", "2019-03-15", "2019-01-15"),
+             end_date = c(NA, "2019-03-30", "2019-04-30", "2019-03-30", NA, 
+                          "2019-03-30", "2019-02-28", NA, NA, "2019-01-30"))
+
+#months to be iterated over
+months_df <- tibble(first = seq(as_date("2019-01-01"), length = 4, by = "months"),
+                    last = seq(as_date("2019-02-01"), length = 4, by = "months") - 1)
+#allocate output
+out <- vector("list", length(months_df$first))
+
+for (i in 1:length(months_df$first))
+{
+  out[[i]] <- df %>% 
+              filter(start_date <= months_df$last[[i]]) %>% 
+              filter(end_date >= months_df$first[[i]] | is.na(months_df$last)) %>% 
+              count(program, sort = T)
+}
+out
+
+#"out" gives each item the name of the index. I would like to replace the index with months_df$first[[i]]
